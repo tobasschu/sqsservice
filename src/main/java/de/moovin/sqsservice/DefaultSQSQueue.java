@@ -13,7 +13,7 @@ import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
 
 public class DefaultSQSQueue implements SQSQueue {
-  private static final int VISIBILITY_TIMEOUT = 60 * 5;
+  private static final int VISIBILITY_TIMEOUT = 60;
   private static final int WAIT_TIME_SECONDS = 5;
   private static final int MAX_NUMBER_OF_MESSAGES = 1;
   private final AmazonSQS sqs;
