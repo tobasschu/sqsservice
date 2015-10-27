@@ -1,4 +1,4 @@
-package de.moovin.sqsservice;
+package de.tschumacher.sqsservice;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
