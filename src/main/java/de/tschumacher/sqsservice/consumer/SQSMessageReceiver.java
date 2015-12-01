@@ -32,7 +32,7 @@ public class SQSMessageReceiver<F> {
 			.getLogger(SQSMessageReceiver.class);
 	private static final int WORKER_COUNT = 5;
 	protected static final int MAX_RETRYS = 5;
-	protected static final int RETRY_SECONDS = 20;
+	protected static final int RETRY_SECONDS = 60 * 2;
 
 	private final SQSMessageHandler<F> handler;
 	private final ExecutorService executorService;
