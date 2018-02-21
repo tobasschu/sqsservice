@@ -1,10 +1,11 @@
 package de.tschumacher.sqsservice;
 
 import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.sqs.AmazonSQS;
-import com.amazonaws.services.sqs.AmazonSQSClient;
+import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
 import com.amazonaws.services.sqs.model.ChangeMessageVisibilityRequest;
 import com.amazonaws.services.sqs.model.DeleteMessageRequest;
 import com.amazonaws.services.sqs.model.Message;
@@ -22,8 +23,9 @@ public class DefaultSQSQueue implements SQSQueue {
   public DefaultSQSQueue(final String accessKey, final String secretKey, final String queueName) {
     super();
     final AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
-    this.sqs = new AmazonSQSClient(credentials);
-    this.sqs.setRegion(com.amazonaws.regions.Region.getRegion(Regions.EU_CENTRAL_1));
+    this.sqs = AmazonSQSClientBuilder.standard()
+        .withCredentials(new AWSStaticCredentialsProvider(credentials))
+        .withRegion(Regions.EU_CENTRAL_1).build();
     this.queueUrl = SQSUtil.createIfNotExists(this.sqs, queueName);
   }
 
