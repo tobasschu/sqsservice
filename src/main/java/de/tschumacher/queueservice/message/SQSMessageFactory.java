@@ -13,29 +13,25 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  */
-package de.tschumacher.sqsservice.message;
+package de.tschumacher.queueservice.message;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import de.tschumacher.queueservice.message.coder.SQSCoder;
 
-public class GsonSQSCoder<B> implements SQSCoder<B> {
+public class SQSMessageFactory<F> {
 
-	private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-	private final Class<B> clazz;
+	private final SQSCoder<F> coder;
 
-	public GsonSQSCoder(final Class<B> clazz) {
+	public SQSMessageFactory(final SQSCoder<F> coder) {
 		super();
-		this.clazz = clazz;
+		this.coder = coder;
 	}
 
-	@Override
-	public B encode(final String content) {
-		return this.gson.fromJson(content, this.clazz);
+	public SQSMessage<F> createMessage(final String body) {
+		return new SQSMessage<F>(this.coder, body);
 	}
 
-	@Override
-	public String decode(final B content) {
-		return this.gson.toJson(content);
+	public SQSMessage<F> createMessage(final F body) {
+		return new SQSMessage<F>(this.coder, body);
 	}
 
 }

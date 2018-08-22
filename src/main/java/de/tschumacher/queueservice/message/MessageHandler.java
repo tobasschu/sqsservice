@@ -13,12 +13,11 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  */
-package de.tschumacher.sqsservice.consumer;
+package de.tschumacher.queueservice.message;
 
-import de.tschumacher.sqsservice.SQSQueue;
-import de.tschumacher.sqsservice.message.SQSMessage;
+import de.tschumacher.queueservice.sqs.SQSQueue;
 
-public interface SQSMessageHandler<T> {
+public interface MessageHandler<T> {
 
 	void receivedMessage(SQSQueue queue, SQSMessage<T> receiveMessage);
 

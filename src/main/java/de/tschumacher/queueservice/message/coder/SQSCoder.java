@@ -13,26 +13,12 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  */
-package de.tschumacher.sqsservice.supplier;
+package de.tschumacher.queueservice.message.coder;
 
-import de.tschumacher.sqsservice.message.SQSCoder;
-import de.tschumacher.sqsservice.message.SQSMessage;
+public interface SQSCoder<T> {
 
-public class SQSMessageFactory<F> {
+	public T encode(final String content);
 
-	private final SQSCoder<F> coder;
-
-	public SQSMessageFactory(final SQSCoder<F> coder) {
-		super();
-		this.coder = coder;
-	}
-
-	public SQSMessage<F> createMessage(final String body) {
-		return new SQSMessage<F>(this.coder, body);
-	}
-
-	public SQSMessage<F> createMessage(final F body) {
-		return new SQSMessage<F>(this.coder, body);
-	}
+	public String decode(final T content);
 
 }

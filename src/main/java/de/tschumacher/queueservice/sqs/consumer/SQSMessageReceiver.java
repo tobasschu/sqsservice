@@ -13,7 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  */
-package de.tschumacher.sqsservice.consumer;
+package de.tschumacher.queueservice.sqs.consumer;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -23,8 +23,9 @@ import org.slf4j.LoggerFactory;
 
 import com.amazonaws.services.sqs.model.Message;
 
-import de.tschumacher.sqsservice.SQSQueue;
-import de.tschumacher.sqsservice.supplier.SQSMessageFactory;
+import de.tschumacher.queueservice.message.MessageHandler;
+import de.tschumacher.queueservice.message.SQSMessageFactory;
+import de.tschumacher.queueservice.sqs.SQSQueue;
 
 public class SQSMessageReceiver<F> {
 
@@ -34,14 +35,14 @@ public class SQSMessageReceiver<F> {
 	protected static final int MAX_RETRYS = 5;
 	protected static final int RETRY_SECONDS = 60 * 2;
 
-	private final SQSMessageHandler<F> handler;
+	private final MessageHandler<F> handler;
 	private final ExecutorService executorService;
 	private boolean running = false;
 	private final Runnable worker;
 	final SQSMessageFactory<F> factory;
 
 	public SQSMessageReceiver(final SQSQueue queue,
-			final SQSMessageHandler<F> handler,
+			final MessageHandler<F> handler,
 			final SQSMessageFactory<F> factory) {
 		super();
 		this.handler = handler;

@@ -13,7 +13,9 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  */
-package de.tschumacher.sqsservice.message;
+package de.tschumacher.queueservice.message;
+
+import de.tschumacher.queueservice.message.coder.SQSCoder;
 
 public class SQSMessage<T> {
 
