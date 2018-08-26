@@ -18,8 +18,6 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
-import com.amazonaws.services.sqs.model.ChangeMessageVisibilityRequest;
-import com.amazonaws.services.sqs.model.DeleteMessageRequest;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
@@ -70,17 +68,13 @@ public class SQSQueueImpl implements SQSQueue {
 
   @Override
   public void deleteMessage(final String receiptHandle) {
-    final DeleteMessageRequest deleteMessageRequest =
-        new DeleteMessageRequest(this.queueUrl, receiptHandle);
-    this.sqs.deleteMessage(deleteMessageRequest);
+    this.sqs.deleteMessage(this.queueUrl, receiptHandle);
 
   }
 
   @Override
   public void changeMessageVisibility(final String receiptHandle, final int retrySeconds) {
-    final ChangeMessageVisibilityRequest changeMessageVisibilityRequest =
-        new ChangeMessageVisibilityRequest(this.queueUrl, receiptHandle, retrySeconds);
-    this.sqs.changeMessageVisibility(changeMessageVisibilityRequest);
+    this.sqs.changeMessageVisibility(this.queueUrl, receiptHandle, retrySeconds);
   }
 
   @Override

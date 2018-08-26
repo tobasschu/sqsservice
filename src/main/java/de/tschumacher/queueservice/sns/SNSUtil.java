@@ -14,16 +14,11 @@
 package de.tschumacher.queueservice.sns;
 
 import com.amazonaws.services.sns.AmazonSNS;
-import com.amazonaws.services.sns.model.CreateTopicRequest;
-import com.amazonaws.services.sns.model.CreateTopicResult;
 
 public class SNSUtil {
 
   public static String createTopic(AmazonSNS sns, String snsName) {
-    final CreateTopicRequest createTopicRequest = new CreateTopicRequest(snsName);
-    final CreateTopicResult createTopicResult = sns.createTopic(createTopicRequest);
-
-    return createTopicResult.getTopicArn();
+    return sns.createTopic(snsName).getTopicArn();
   }
 
 }

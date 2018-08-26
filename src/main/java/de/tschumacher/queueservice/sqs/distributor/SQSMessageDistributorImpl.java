@@ -17,27 +17,27 @@ import de.tschumacher.queueservice.message.SQSMessageFactory;
 import de.tschumacher.queueservice.sqs.SQSQueue;
 
 public class SQSMessageDistributorImpl<T> implements SQSMessageDistributor<T> {
-  private final SQSQueue messageSendQueue;
+  private final SQSQueue sqsQueue;
   private final SQSMessageFactory<T> factory;
 
 
 
-  public SQSMessageDistributorImpl(SQSQueue messageSendQueue, SQSMessageFactory<T> factory) {
+  public SQSMessageDistributorImpl(SQSQueue sqsQueue, SQSMessageFactory<T> factory) {
     super();
-    this.messageSendQueue = messageSendQueue;
+    this.sqsQueue = sqsQueue;
     this.factory = factory;
   }
 
 
   @Override
   public void distribute(final T message) {
-    this.messageSendQueue.sendMessage(createMessage(message));
+    this.sqsQueue.sendMessage(createMessage(message));
   }
 
 
   @Override
   public void distribute(final T message, int delay) {
-    this.messageSendQueue.sendMessage(createMessage(message), delay);
+    this.sqsQueue.sendMessage(createMessage(message), delay);
   }
 
 

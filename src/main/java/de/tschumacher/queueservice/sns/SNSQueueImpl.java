@@ -18,7 +18,6 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.AmazonSNSClientBuilder;
-import com.amazonaws.services.sns.model.SubscribeRequest;
 
 public class SNSQueueImpl implements SNSQueue {
   private static final String DEFAULT_REGION = Regions.EU_CENTRAL_1.name();
@@ -57,9 +56,8 @@ public class SNSQueueImpl implements SNSQueue {
   }
 
   @Override
-  public void subscribeSQSQueue(String queueuUrl) {
-    final SubscribeRequest subscribeRequest = new SubscribeRequest(this.topicArn, "sqs", queueuUrl);
-    this.sns.subscribe(subscribeRequest);
+  public void subscribeSQSQueue(String queueUrl) {
+    this.sns.subscribe(this.topicArn, "sqs", queueUrl);
   }
 
 
