@@ -20,7 +20,7 @@ import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.AmazonSNSClientBuilder;
 
 public class SNSQueueImpl implements SNSQueue {
-  private static final String DEFAULT_REGION = Regions.EU_CENTRAL_1.name();
+  private static final String DEFAULT_REGION = Regions.EU_CENTRAL_1.getName();
   private final AmazonSNS sns;
   private final String topicArn;
 
@@ -41,6 +41,7 @@ public class SNSQueueImpl implements SNSQueue {
 
   }
 
+
   private static AmazonSNS createAmazonSQS(final String accessKey, final String secretKey,
       String regionName) {
     final BasicAWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
@@ -52,12 +53,17 @@ public class SNSQueueImpl implements SNSQueue {
 
   @Override
   public void sendMessage(String message) {
-    this.sns.publish(this.topicArn, message);
+    this.sns.publish(getTopicArn(), message);
   }
 
   @Override
-  public void subscribeSQSQueue(String queueUrl) {
-    this.sns.subscribe(this.topicArn, "sqs", queueUrl);
+  public void subscribeSQSQueue(String queueArn) {
+    this.sns.subscribe(getTopicArn(), "sqs", queueArn);
+  }
+
+  @Override
+  public String getTopicArn() {
+    return this.topicArn;
   }
 
 

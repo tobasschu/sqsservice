@@ -13,21 +13,35 @@
  */
 package de.tschumacher.queueservice.sqs;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.auth.policy.Policy;
+import com.amazonaws.auth.policy.Principal;
+import com.amazonaws.auth.policy.Resource;
+import com.amazonaws.auth.policy.Statement;
+import com.amazonaws.auth.policy.actions.SQSActions;
+import com.amazonaws.auth.policy.conditions.ArnCondition;
+import com.amazonaws.auth.policy.conditions.ArnCondition.ArnComparisonType;
+import com.amazonaws.auth.policy.conditions.ConditionFactory;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
+import com.amazonaws.services.sqs.model.GetQueueAttributesRequest;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
+import com.amazonaws.services.sqs.model.SetQueueAttributesRequest;
 
 public class SQSQueueImpl implements SQSQueue {
   private static final int VISIBILITY_TIMEOUT = 60 * 2;
   private static final int WAIT_TIME_SECONDS = 20;
   private static final int MAX_NUMBER_OF_MESSAGES = 1;
-  private static final String DEFAULT_REGION = Regions.EU_CENTRAL_1.name();
+  private static final String DEFAULT_REGION = Regions.EU_CENTRAL_1.getName();
 
   private final AmazonSQS sqs;
   private final String queueUrl;
@@ -92,8 +106,42 @@ public class SQSQueueImpl implements SQSQueue {
   }
 
   @Override
-  public String getQueueUrl() {
-    return this.queueUrl;
+  public String getQueueArn() {
+    final GetQueueAttributesRequest getQueueAttributesRequest =
+        new GetQueueAttributesRequest(this.queueUrl, Arrays.asList("QueueArn"));
+    return this.sqs.getQueueAttributes(getQueueAttributesRequest).getAttributes().get("QueueArn");
+  }
+
+  @Override
+  public void addSNSPermissions(String topicArn) {
+    final Policy policy = createPolicy(topicArn);
+    final Map<String, String> attributes = createAttributes(policy);
+
+    final SetQueueAttributesRequest setQueueAttributesRequest =
+        new SetQueueAttributesRequest(this.queueUrl, attributes);
+    this.sqs.setQueueAttributes(setQueueAttributesRequest);
+  }
+
+  private Map<String, String> createAttributes(final Policy policy) {
+    final Map<String, String> attributes = new HashMap<>();
+    attributes.put("Policy", policy.toJson());
+    return attributes;
+  }
+
+  private Policy createPolicy(String topicArn) {
+    final Policy policy = new Policy();
+    policy.withStatements(createPolicyStatement(topicArn));
+    return policy;
+  }
+
+  private Statement createPolicyStatement(String topicArn) {
+    final Statement statement = new Statement(Statement.Effect.Allow);
+    statement.withPrincipals(Principal.AllUsers);
+    statement.withActions(SQSActions.SendMessage);
+    statement.withResources(new Resource(getQueueArn()));
+    statement.withConditions(new ArnCondition(ArnComparisonType.ArnEquals,
+        ConditionFactory.SOURCE_ARN_CONDITION_KEY, topicArn));
+    return statement;
   }
 
 }

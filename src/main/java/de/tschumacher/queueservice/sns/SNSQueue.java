@@ -17,6 +17,8 @@ public interface SNSQueue {
 
   void sendMessage(String message);
 
-  void subscribeSQSQueue(String queueUrl);
+  void subscribeSQSQueue(String queueArn);
+
+  String getTopicArn();
 
 }

@@ -2,6 +2,7 @@ package de.tschumacher.queueservice;
 
 import com.amazonaws.services.sns.model.CreateTopicResult;
 import com.amazonaws.services.sqs.model.CreateQueueResult;
+import com.amazonaws.services.sqs.model.GetQueueAttributesResult;
 import com.amazonaws.services.sqs.model.GetQueueUrlResult;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
@@ -65,5 +66,11 @@ public class DataCreater {
 
   public static CreateTopicResult createCreateTopicResult() {
     return new CreateTopicResult().withTopicArn(createString());
+  }
+
+  public static GetQueueAttributesResult createGetQueueAttributesResult() {
+    final GetQueueAttributesResult getQueueAttributesResult = new GetQueueAttributesResult();
+    getQueueAttributesResult.addAttributesEntry("QueueArn", createString());
+    return getQueueAttributesResult;
   }
 }

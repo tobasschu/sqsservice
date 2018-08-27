@@ -13,8 +13,8 @@
  */
 package de.tschumacher.queueservice.sqs;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static de.tschumacher.queueservice.DataCreater.*;
+import static org.junit.Assert.*;
 
 import org.junit.After;
 import org.junit.Before;
@@ -24,6 +24,8 @@ import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.model.GetQueueAttributesRequest;
+import com.amazonaws.services.sqs.model.GetQueueAttributesResult;
 import com.amazonaws.services.sqs.model.GetQueueUrlResult;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
@@ -31,6 +33,7 @@ import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
 
 import de.tschumacher.queueservice.DataCreater;
+
 
 
 public class SQSQueueTest {
@@ -42,10 +45,10 @@ public class SQSQueueTest {
 
   @Before
   public void setUp() {
-    this.queueName = DataCreater.createString();
+    this.queueName = createString();
     this.sqs = Mockito.mock(AmazonSQS.class);
 
-    final GetQueueUrlResult getQueueUrlResult = DataCreater.createGetQueueUrlResult();
+    final GetQueueUrlResult getQueueUrlResult = createGetQueueUrlResult();
     this.queueUrl = getQueueUrlResult.getQueueUrl();
     Mockito.when(this.sqs.getQueueUrl(this.queueName)).thenReturn(getQueueUrlResult);
 
@@ -61,7 +64,7 @@ public class SQSQueueTest {
 
   @Test
   public void sendMessageTest() {
-    final String messageBody = DataCreater.createString();
+    final String messageBody = createString();
 
     this.sqsQueue.sendMessage(messageBody);
 
@@ -81,8 +84,8 @@ public class SQSQueueTest {
 
   @Test
   public void changeMessageVisibilityTest() {
-    final String receiptHandle = DataCreater.createString();
-    final Integer retrySeconds = DataCreater.createInteger();
+    final String receiptHandle = createString();
+    final Integer retrySeconds = createInteger();
 
     this.sqsQueue.changeMessageVisibility(receiptHandle, retrySeconds);
 
@@ -91,7 +94,7 @@ public class SQSQueueTest {
 
   @Test
   public void deleteMessageTest() {
-    final String receiptHandle = DataCreater.createString();
+    final String receiptHandle = createString();
 
     this.sqsQueue.deleteMessage(receiptHandle);
 
@@ -100,14 +103,23 @@ public class SQSQueueTest {
 
 
   @Test
-  public void getQueueUrlTest() {
-    final String queueUrl = this.sqsQueue.getQueueUrl();
-    assertEquals(this.queueUrl, queueUrl);
+  public void getQueueArnTest() {
+
+    final GetQueueAttributesResult getQueueAttributesResult = createGetQueueAttributesResult();
+    Mockito.when(this.sqs.getQueueAttributes(Matchers.any(GetQueueAttributesRequest.class)))
+        .thenReturn(getQueueAttributesResult);
+
+    final String queueArn = this.sqsQueue.getQueueArn();
+
+    assertEquals(getQueueAttributesResult.getAttributes().get("QueueArn"), queueArn);
+
+    Mockito.verify(this.sqs).getQueueAttributes(Matchers.any(GetQueueAttributesRequest.class));
   }
+
 
   @Test
   public void receiveMessageTest() {
-    final ReceiveMessageResult receiveMessageResult = DataCreater.createReceiveMessageResult();
+    final ReceiveMessageResult receiveMessageResult = createReceiveMessageResult();
 
     Mockito.when(this.sqs.receiveMessage(Matchers.any(ReceiveMessageRequest.class)))
         .thenReturn(receiveMessageResult);

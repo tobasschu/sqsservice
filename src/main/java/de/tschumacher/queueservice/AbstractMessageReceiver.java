@@ -11,7 +11,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package de.tschumacher.queueservice.sqs.consumer;
+package de.tschumacher.queueservice;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,24 +22,22 @@ import de.tschumacher.queueservice.message.MessageHandler;
 import de.tschumacher.queueservice.message.SQSMessageFactory;
 import de.tschumacher.queueservice.sqs.SQSQueue;
 
-public class SQSMessageReceiverImpl<F> implements SQSMessageReceiver<F> {
-  protected static final int RETRY_SECONDS = 60 * 2;
+public class AbstractMessageReceiver<F> implements MessageReceiver<F> {
+  public static final int RETRY_SECONDS = 60 * 2;
 
-  private static final Logger logger = LoggerFactory.getLogger(SQSMessageReceiverImpl.class);
+  private static final Logger logger = LoggerFactory.getLogger(AbstractMessageReceiver.class);
 
-  private final MessageHandler<F> handler;
-  final SQSMessageFactory<F> factory;
+  protected final MessageHandler<F> handler;
+  protected final SQSMessageFactory<F> factory;
 
-  public SQSMessageReceiverImpl(final MessageHandler<F> handler, final SQSMessageFactory<F> factory) {
+  public AbstractMessageReceiver(final MessageHandler<F> handler,
+      final SQSMessageFactory<F> factory) {
     super();
     this.handler = handler;
     this.factory = factory;
   }
 
 
-  /* (non-Javadoc)
-   * @see de.tschumacher.queueservice.sqs.consumer.SQSMessageReceiver#receiveMessage(de.tschumacher.queueservice.sqs.SQSQueue)
-   */
   @Override
   public void receiveMessage(final SQSQueue queue) {
     final Message receiveMessage = queue.receiveMessage();
@@ -53,7 +51,7 @@ public class SQSMessageReceiverImpl<F> implements SQSMessageReceiver<F> {
     }
   }
 
-  private void handleMessage(final SQSQueue queue, final Message receiveMessage) {
+  protected void handleMessage(final SQSQueue queue, final Message receiveMessage) {
     this.handler.receivedMessage(queue, this.factory.createMessage(receiveMessage.getBody()));
     queue.deleteMessage(receiveMessage.getReceiptHandle());
   }

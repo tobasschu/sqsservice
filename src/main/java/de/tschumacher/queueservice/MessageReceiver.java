@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Tobias Schumacher
+ * Copyright 2018 Tobias Schumacher
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -11,24 +11,13 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package de.tschumacher.queueservice.sqs;
+package de.tschumacher.queueservice;
 
-import com.amazonaws.services.sqs.model.Message;
+import de.tschumacher.queueservice.sqs.SQSQueue;
 
-public interface SQSQueue {
 
-  Message receiveMessage();
+public interface MessageReceiver<F> {
 
-  void deleteMessage(String receiptHandle);
-
-  void changeMessageVisibility(String receiptHandle, int retrySeconds);
-
-  void sendMessage(String messageBody);
-
-  void sendMessage(String messageBody, Integer delaySeconds);
-
-  String getQueueArn();
-
-  void addSNSPermissions(String topicArn);
+  void receiveMessage(SQSQueue queue);
 
 }

@@ -13,61 +13,16 @@
  */
 package de.tschumacher.queueservice.sqs.consumer;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import de.tschumacher.queueservice.AbstractMessageReceiverService;
+import de.tschumacher.queueservice.message.MessageHandler;
+import de.tschumacher.queueservice.message.SQSMessageFactory;
 import de.tschumacher.queueservice.sqs.SQSQueue;
 
-public class SQSMessageReceiverService<F> {
+public class SQSMessageReceiverService<F> extends AbstractMessageReceiverService<F> {
 
-  private static final Logger logger = LoggerFactory.getLogger(SQSMessageReceiverService.class);
-  private static final int WORKER_COUNT = 5;
-
-  private final ExecutorService executorService;
-  private boolean running = false;
-  private final Runnable worker;
-  private final SQSMessageReceiver<F> messageReceiver;
-
-  public SQSMessageReceiverService(final SQSQueue queue, SQSMessageReceiver<F> messageReceiver) {
-    super();
-    this.messageReceiver = messageReceiver;
-    this.worker = newWorker(queue);
-    this.executorService = Executors.newFixedThreadPool(WORKER_COUNT);
-    start();
-  }
-
-  public void start() {
-    this.running = true;
-    for (int i = 0; i < WORKER_COUNT; i++) {
-      this.executorService.submit(this.worker);
-    }
-  }
-
-  public void stop() throws InterruptedException {
-    this.running = false;
-    this.executorService.shutdown();
-  }
-
-  private Runnable newWorker(final SQSQueue queue) {
-    return () -> {
-      while (SQSMessageReceiverService.this.running) {
-        try {
-          SQSMessageReceiverService.this.messageReceiver.receiveMessage(queue);
-        } catch (final Throwable e) {
-          logger.error("could not handle message", e);
-        }
-      }
-
-    };
-  }
-
-  @Override
-  protected void finalize() throws Throwable {
-    stop();
-    super.finalize();
+  public SQSMessageReceiverService(final SQSQueue queue, MessageHandler<F> handler,
+      SQSMessageFactory<F> factory) {
+    super(queue, new SQSMessageReceiver<>(handler, factory));
   }
 
 }

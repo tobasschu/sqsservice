@@ -20,6 +20,7 @@ import org.mockito.Mockito;
 
 import com.amazonaws.services.sqs.model.Message;
 
+import de.tschumacher.queueservice.AbstractMessageReceiver;
 import de.tschumacher.queueservice.DataCreater;
 import de.tschumacher.queueservice.message.MessageHandler;
 import de.tschumacher.queueservice.message.SQSMessage;
@@ -41,7 +42,7 @@ public class SQSMessageReceiverTest {
     this.queue = Mockito.mock(SQSQueue.class);
     this.handler = Mockito.mock(MessageHandler.class);
     this.factory = Mockito.mock(SQSMessageFactory.class);
-    this.sqsMessageReceiver = new SQSMessageReceiverImpl<>(this.handler, this.factory);
+    this.sqsMessageReceiver = new SQSMessageReceiver<>(this.handler, this.factory);
 
   }
 
@@ -94,6 +95,6 @@ public class SQSMessageReceiverTest {
     Mockito.verify(this.factory).createMessage(message.getBody());
     Mockito.verify(this.handler).receivedMessage(this.queue, sqsMessage);
     Mockito.verify(this.queue).changeMessageVisibility(message.getReceiptHandle(),
-        SQSMessageReceiverImpl.RETRY_SECONDS);
+        AbstractMessageReceiver.RETRY_SECONDS);
   }
 }

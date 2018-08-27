@@ -13,18 +13,19 @@
  */
 package de.tschumacher.queueservice.sns.consumer;
 
+import de.tschumacher.queueservice.AbstractMessageReceiverService;
+import de.tschumacher.queueservice.message.MessageHandler;
+import de.tschumacher.queueservice.message.SQSMessageFactory;
 import de.tschumacher.queueservice.sns.SNSQueue;
 import de.tschumacher.queueservice.sqs.SQSQueue;
-import de.tschumacher.queueservice.sqs.consumer.SQSMessageReceiver;
-import de.tschumacher.queueservice.sqs.consumer.SQSMessageReceiverService;
 
-public class SNSMessageReceiverService<F> extends SQSMessageReceiverService<F> {
+public class SNSMessageReceiverService<F> extends AbstractMessageReceiverService<F> {
 
 
-  public SNSMessageReceiverService(SNSQueue snsQueue, SQSQueue sqsQueue,
-      SQSMessageReceiver<F> messageReceiver) {
-    super(sqsQueue, messageReceiver);
-    snsQueue.subscribeSQSQueue(sqsQueue.getQueueUrl());
+  public SNSMessageReceiverService(SNSQueue snsQueue, SQSQueue sqsQueue, MessageHandler<F> handler,
+      SQSMessageFactory<F> factory) {
+    super(sqsQueue, new SNSMessageReceiver<>(handler, factory));
+    snsQueue.subscribeSQSQueue(sqsQueue.getQueueArn());
+    sqsQueue.addSNSPermissions(snsQueue.getTopicArn());
   }
-
 }
