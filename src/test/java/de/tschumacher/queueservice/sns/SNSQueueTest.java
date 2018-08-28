@@ -14,6 +14,7 @@
 package de.tschumacher.queueservice.sns;
 
 import static de.tschumacher.queueservice.DataCreater.*;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import org.junit.After;
@@ -69,6 +70,16 @@ public class SNSQueueTest {
     this.snsQueue.subscribeSQSQueue(queueUrl);
 
     verify(this.sns).subscribe(this.topicArn, "sqs", queueUrl);
+  }
+
+
+  @Test
+  public void getTopicArnTest() {
+
+    final String resultTopicArn = this.snsQueue.getTopicArn();
+
+    assertEquals(this.topicArn, resultTopicArn);
+
   }
 
 }

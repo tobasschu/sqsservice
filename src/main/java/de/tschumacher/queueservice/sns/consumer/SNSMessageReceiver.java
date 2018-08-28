@@ -30,18 +30,27 @@ import de.tschumacher.queueservice.sqs.SQSQueue;
 public class SNSMessageReceiver<F> extends AbstractMessageReceiver<F>
     implements MessageReceiver<F> {
 
+  private final SnsMessageManager manager;
+
   public SNSMessageReceiver(final MessageHandler<F> handler, final SQSMessageFactory<F> factory) {
     super(handler, factory);
+    this.manager = new SnsMessageManager();
   }
 
   @Override
   protected void handleMessage(final SQSQueue queue, final Message receiveMessage) {
-    final SnsMessageManager manager = new SnsMessageManager();
-    final InputStream messageBody =
-        new ByteArrayInputStream(receiveMessage.getBody().getBytes(StandardCharsets.UTF_8));
-    final SnsNotification notification = (SnsNotification) manager.parseMessage(messageBody);
+    final SnsNotification notification = createSnsNotification(receiveMessage.getBody());
     this.handler.receivedMessage(queue, this.factory.createMessage(notification.getMessage()));
     queue.deleteMessage(receiveMessage.getReceiptHandle());
+  }
+
+  private SnsNotification createSnsNotification(final String message) {
+    final InputStream messageInputStream = createInputStream(message);
+    return (SnsNotification) this.manager.parseMessage(messageInputStream);
+  }
+
+  private InputStream createInputStream(final String input) {
+    return new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8));
   }
 
 }

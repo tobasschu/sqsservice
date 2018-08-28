@@ -15,12 +15,13 @@ package de.tschumacher.queueservice.sqs;
 
 import static de.tschumacher.queueservice.DataCreater.*;
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 import com.amazonaws.services.sqs.AmazonSQS;
@@ -31,8 +32,7 @@ import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
-
-import de.tschumacher.queueservice.DataCreater;
+import com.amazonaws.services.sqs.model.SetQueueAttributesRequest;
 
 
 
@@ -50,7 +50,7 @@ public class SQSQueueTest {
 
     final GetQueueUrlResult getQueueUrlResult = createGetQueueUrlResult();
     this.queueUrl = getQueueUrlResult.getQueueUrl();
-    Mockito.when(this.sqs.getQueueUrl(this.queueName)).thenReturn(getQueueUrlResult);
+    when(this.sqs.getQueueUrl(this.queueName)).thenReturn(getQueueUrlResult);
 
     this.sqsQueue = new SQSQueueImpl(this.sqs, this.queueName);
 
@@ -58,8 +58,8 @@ public class SQSQueueTest {
 
   @After
   public void shutDown() {
-    Mockito.verify(this.sqs).getQueueUrl(this.queueName);
-    Mockito.verifyNoMoreInteractions(this.sqs);
+    verify(this.sqs).getQueueUrl(this.queueName);
+    verifyNoMoreInteractions(this.sqs);
   }
 
   @Test
@@ -74,8 +74,8 @@ public class SQSQueueTest {
 
   @Test
   public void sendMessageWithDelaySecondsTest() {
-    final String messageBody = DataCreater.createString();
-    final Integer delaySeconds = DataCreater.createInteger();
+    final String messageBody = createString();
+    final Integer delaySeconds = createInteger();
 
     this.sqsQueue.sendMessage(messageBody, delaySeconds);
 
@@ -89,7 +89,7 @@ public class SQSQueueTest {
 
     this.sqsQueue.changeMessageVisibility(receiptHandle, retrySeconds);
 
-    Mockito.verify(this.sqs).changeMessageVisibility(this.queueUrl, receiptHandle, retrySeconds);
+    verify(this.sqs).changeMessageVisibility(this.queueUrl, receiptHandle, retrySeconds);
   }
 
   @Test
@@ -98,7 +98,7 @@ public class SQSQueueTest {
 
     this.sqsQueue.deleteMessage(receiptHandle);
 
-    Mockito.verify(this.sqs).deleteMessage(this.queueUrl, receiptHandle);
+    verify(this.sqs).deleteMessage(this.queueUrl, receiptHandle);
   }
 
 
@@ -106,14 +106,14 @@ public class SQSQueueTest {
   public void getQueueArnTest() {
 
     final GetQueueAttributesResult getQueueAttributesResult = createGetQueueAttributesResult();
-    Mockito.when(this.sqs.getQueueAttributes(Matchers.any(GetQueueAttributesRequest.class)))
+    when(this.sqs.getQueueAttributes(any(GetQueueAttributesRequest.class)))
         .thenReturn(getQueueAttributesResult);
 
     final String queueArn = this.sqsQueue.getQueueArn();
 
     assertEquals(getQueueAttributesResult.getAttributes().get("QueueArn"), queueArn);
 
-    Mockito.verify(this.sqs).getQueueAttributes(Matchers.any(GetQueueAttributesRequest.class));
+    verify(this.sqs).getQueueAttributes(any(GetQueueAttributesRequest.class));
   }
 
 
@@ -121,34 +121,50 @@ public class SQSQueueTest {
   public void receiveMessageTest() {
     final ReceiveMessageResult receiveMessageResult = createReceiveMessageResult();
 
-    Mockito.when(this.sqs.receiveMessage(Matchers.any(ReceiveMessageRequest.class)))
+    when(this.sqs.receiveMessage(any(ReceiveMessageRequest.class)))
         .thenReturn(receiveMessageResult);
 
     final Message resultReceiveMessage = this.sqsQueue.receiveMessage();
 
     assertEquals(receiveMessageResult.getMessages().get(0), resultReceiveMessage);
 
-    Mockito.verify(this.sqs).receiveMessage(Matchers.any(ReceiveMessageRequest.class));
+    verify(this.sqs).receiveMessage(any(ReceiveMessageRequest.class));
   }
 
 
   @Test
   public void receiveEmptyMessageTest() {
 
-    Mockito.when(this.sqs.receiveMessage(Matchers.any(ReceiveMessageRequest.class)))
+    when(this.sqs.receiveMessage(any(ReceiveMessageRequest.class)))
         .thenReturn(new ReceiveMessageResult());
 
     final Message resultReceiveMessage = this.sqsQueue.receiveMessage();
 
     assertNull(resultReceiveMessage);
 
-    Mockito.verify(this.sqs).receiveMessage(Matchers.any(ReceiveMessageRequest.class));
+    verify(this.sqs).receiveMessage(any(ReceiveMessageRequest.class));
   }
+
+
+  @Test
+  public void addSNSPermissionsTest() {
+    final String topicArn = createString();
+    final GetQueueAttributesResult getQueueAttributesResult = createGetQueueAttributesResult();
+
+    when(this.sqs.getQueueAttributes(any(GetQueueAttributesRequest.class)))
+        .thenReturn(getQueueAttributesResult);
+
+    this.sqsQueue.addSNSPermissions(topicArn);
+
+    verify(this.sqs).setQueueAttributes(any(SetQueueAttributesRequest.class));
+    verify(this.sqs).getQueueAttributes(any(GetQueueAttributesRequest.class));
+  }
+
 
   private void verifySendMessageRequest(final String messageBody, Integer delaySeconds) {
     final ArgumentCaptor<SendMessageRequest> sendMessageRequestCaptor =
         ArgumentCaptor.forClass(SendMessageRequest.class);
-    Mockito.verify(this.sqs).sendMessage(sendMessageRequestCaptor.capture());
+    verify(this.sqs).sendMessage(sendMessageRequestCaptor.capture());
 
     assertEquals(messageBody, sendMessageRequestCaptor.getValue().getMessageBody());
     assertEquals(this.queueUrl, sendMessageRequestCaptor.getValue().getQueueUrl());
