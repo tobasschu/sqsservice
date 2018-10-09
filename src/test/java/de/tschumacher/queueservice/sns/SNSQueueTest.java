@@ -21,7 +21,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.amazonaws.services.sns.AmazonSNS;
+import com.amazonaws.services.sns.AmazonSNSAsync;
 import com.amazonaws.services.sns.model.CreateTopicResult;
 
 import de.tschumacher.queueservice.DataCreater;
@@ -30,14 +30,14 @@ import de.tschumacher.queueservice.DataCreater;
 public class SNSQueueTest {
 
   private SNSQueue snsQueue;
-  private AmazonSNS sns;
+  private AmazonSNSAsync sns;
   private String snsName;
   private String topicArn;
 
   @Before
   public void setUp() {
     this.snsName = createString();
-    this.sns = mock(AmazonSNS.class);
+    this.sns = mock(AmazonSNSAsync.class);
 
     final CreateTopicResult createTopicResult = createCreateTopicResult();
     this.topicArn = createTopicResult.getTopicArn();
@@ -60,7 +60,7 @@ public class SNSQueueTest {
 
     this.snsQueue.sendMessage(message);
 
-    verify(this.sns).publish(this.topicArn, message);
+    verify(this.sns).publishAsync(this.topicArn, message);
   }
 
   @Test

@@ -16,16 +16,16 @@ package de.tschumacher.queueservice.sns;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
-import com.amazonaws.services.sns.AmazonSNS;
-import com.amazonaws.services.sns.AmazonSNSClientBuilder;
+import com.amazonaws.services.sns.AmazonSNSAsync;
+import com.amazonaws.services.sns.AmazonSNSAsyncClientBuilder;
 
 public class SNSQueueImpl implements SNSQueue {
   private static final String DEFAULT_REGION = Regions.EU_CENTRAL_1.getName();
-  private final AmazonSNS sns;
+  private final AmazonSNSAsync sns;
   private final String topicArn;
 
 
-  public SNSQueueImpl(AmazonSNS sns, final String snsName) {
+  public SNSQueueImpl(AmazonSNSAsync sns, final String snsName) {
     super();
     this.sns = sns;
     this.topicArn = SNSUtil.createTopic(this.sns, snsName);
@@ -42,10 +42,10 @@ public class SNSQueueImpl implements SNSQueue {
   }
 
 
-  private static AmazonSNS createAmazonSQS(final String accessKey, final String secretKey,
+  private static AmazonSNSAsync createAmazonSQS(final String accessKey, final String secretKey,
       String regionName) {
     final BasicAWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
-    return AmazonSNSClientBuilder.standard()
+    return AmazonSNSAsyncClientBuilder.standard()
         .withCredentials(new AWSStaticCredentialsProvider(credentials))
         .withRegion(Regions.fromName(regionName)).build();
   }
@@ -53,7 +53,7 @@ public class SNSQueueImpl implements SNSQueue {
 
   @Override
   public void sendMessage(String message) {
-    this.sns.publish(getTopicArn(), message);
+    this.sns.publishAsync(getTopicArn(), message);
   }
 
   @Override

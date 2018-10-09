@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.AmazonSQSAsync;
 import com.amazonaws.services.sqs.model.GetQueueAttributesRequest;
 import com.amazonaws.services.sqs.model.GetQueueAttributesResult;
 import com.amazonaws.services.sqs.model.GetQueueUrlResult;
@@ -39,14 +39,14 @@ import com.amazonaws.services.sqs.model.SetQueueAttributesRequest;
 public class SQSQueueTest {
 
   private SQSQueue sqsQueue;
-  private AmazonSQS sqs;
+  private AmazonSQSAsync sqs;
   private String queueName;
   private String queueUrl;
 
   @Before
   public void setUp() {
     this.queueName = createString();
-    this.sqs = Mockito.mock(AmazonSQS.class);
+    this.sqs = Mockito.mock(AmazonSQSAsync.class);
 
     final GetQueueUrlResult getQueueUrlResult = createGetQueueUrlResult();
     this.queueUrl = getQueueUrlResult.getQueueUrl();
@@ -164,7 +164,7 @@ public class SQSQueueTest {
   private void verifySendMessageRequest(final String messageBody, Integer delaySeconds) {
     final ArgumentCaptor<SendMessageRequest> sendMessageRequestCaptor =
         ArgumentCaptor.forClass(SendMessageRequest.class);
-    verify(this.sqs).sendMessage(sendMessageRequestCaptor.capture());
+    verify(this.sqs).sendMessageAsync(sendMessageRequestCaptor.capture());
 
     assertEquals(messageBody, sendMessageRequestCaptor.getValue().getMessageBody());
     assertEquals(this.queueUrl, sendMessageRequestCaptor.getValue().getQueueUrl());

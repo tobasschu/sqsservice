@@ -28,8 +28,8 @@ import com.amazonaws.auth.policy.conditions.ArnCondition;
 import com.amazonaws.auth.policy.conditions.ArnCondition.ArnComparisonType;
 import com.amazonaws.auth.policy.conditions.ConditionFactory;
 import com.amazonaws.regions.Regions;
-import com.amazonaws.services.sqs.AmazonSQS;
-import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
+import com.amazonaws.services.sqs.AmazonSQSAsync;
+import com.amazonaws.services.sqs.AmazonSQSAsyncClientBuilder;
 import com.amazonaws.services.sqs.model.GetQueueAttributesRequest;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
@@ -43,10 +43,10 @@ public class SQSQueueImpl implements SQSQueue {
   private static final int MAX_NUMBER_OF_MESSAGES = 1;
   private static final String DEFAULT_REGION = Regions.EU_CENTRAL_1.getName();
 
-  private final AmazonSQS sqs;
+  private final AmazonSQSAsync sqs;
   private final String queueUrl;
 
-  public SQSQueueImpl(AmazonSQS sqs, final String queueName) {
+  public SQSQueueImpl(AmazonSQSAsync sqs, final String queueName) {
     super();
     this.sqs = sqs;
     this.queueUrl = SQSUtil.createIfNotExists(this.sqs, queueName);
@@ -61,10 +61,10 @@ public class SQSQueueImpl implements SQSQueue {
     this(createAmazonSQS(accessKey, secretKey, regionName), queueName);
   }
 
-  private static AmazonSQS createAmazonSQS(final String accessKey, final String secretKey,
+  private static AmazonSQSAsync createAmazonSQS(final String accessKey, final String secretKey,
       String regionName) {
     final BasicAWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
-    return AmazonSQSClientBuilder.standard()
+    return AmazonSQSAsyncClientBuilder.standard()
         .withCredentials(new AWSStaticCredentialsProvider(credentials))
         .withRegion(Regions.fromName(regionName)).build();
   }
@@ -102,7 +102,7 @@ public class SQSQueueImpl implements SQSQueue {
     final SendMessageRequest sendMessageRequest =
         new SendMessageRequest(this.queueUrl, messageBody);
     sendMessageRequest.setDelaySeconds(delaySeconds);
-    this.sqs.sendMessage(sendMessageRequest);
+    this.sqs.sendMessageAsync(sendMessageRequest);
   }
 
   @Override
