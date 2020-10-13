@@ -32,7 +32,7 @@
 		<aws-java-sdk-sqs.version>1.11.391</aws-java-sdk-sqs.version>
 		<aws-java-sdk-sns.version>1.11.391</aws-java-sdk-sns.version>
 		<mockito.version>1.10.19</mockito.version>
-		<junit.version>4.12</junit.version>
+		<junit.version>4.13.1</junit.version>
 		<podam.version>7.2.0.RELEASE</podam.version>
 	</properties>
 
